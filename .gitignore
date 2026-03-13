@@ -19,6 +19,84 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs
 hs_err_pid*
 replay_pid*
+
+# ── Maven ────────────────────────────────────────────────────────────────────
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.mvn/timing.properties
+
+# ── Spring Boot ──────────────────────────────────────────────────────────────
+application-local.properties
+application-local.yml
+application-prod.properties
+application-prod.yml
+
+# ── IntelliJ IDEA ────────────────────────────────────────────────────────────
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+# ── VS Code ───────────────────────────────────────────────────────────────────
+.vscode/
+*.code-workspace
+
+# ── Eclipse ───────────────────────────────────────────────────────────────────
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+bin/
+
+# ── NetBeans ──────────────────────────────────────────────────────────────────
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ── OS files ──────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Environment & Secrets — NEVER commit these ───────────────────────────────
+.env
+.env.*
+*.env
+secrets.yml
+secrets.properties
+*-secret.yml
+*-secret.properties
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+.docker/
+
+# ── MapStruct generated sources ───────────────────────────────────────────────
+generated-sources/
+
+# ── Test reports ──────────────────────────────────────────────────────────────
+surefire-reports/
+test-output/
+
+# ── SonarQube ─────────────────────────────────────────────────────────────────
+.sonar/
+.sonarqube/
+
+# ── Kotlin (if added later) ───────────────────────────────────────────────────
+*.kotlin_module
