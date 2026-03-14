@@ -1,22 +1,67 @@
 services:
+
   postgres:
     container_name: postgres_db
     image: postgres:18.3
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_USER: ${POSTGRES_USER}
-      PGDATA: ${PGDATA}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /data/postgres
     networks:
       - internal
     ports:
       - "5432:5432"
     volumes:
-      - postgres:${PGDATA}
+      - postgres:/data/postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  config-server:
+    container_name: config-server
+    build:
+      context: ./services/config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  discovery-server:
+    container_name: discovery-server
+    build:
+      context: ./services/discovery-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - internal
+    depends_on:
+      config-server:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 networks:
   internal:
     driver: bridge
-
 
 volumes:
   postgres:
