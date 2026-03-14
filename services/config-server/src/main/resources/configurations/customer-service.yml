@@ -1,0 +1,11 @@
+spring:
+  mongodb:
+    uri: mongodb://${SPRING_MONGODB_USERNAME}:${SPRING_MONGODB_PASSWORD}@mongo:27017/customer?authSource=admin
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+
+server:
+  port: 8090
