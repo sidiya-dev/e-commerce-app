@@ -16,11 +16,29 @@ services:
       - postgres:/data/postgres
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
+
+  mongo:
+    container_name: mongo_db
+    image: mongo
+    volumes:
+      - mongo:/data/db
+    networks:
+      - internal
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   config-server:
     container_name: config-server
@@ -33,7 +51,7 @@ services:
       - internal
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,7 +71,33 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  customer-service:
+    container_name: customer-service
+    build:
+      context: ./services/customer-service
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    networks:
+      - internal
+    environment:
+      - SPRING_MONGODB_USERNAME=${MONGO_DB_USERNAME}
+      - SPRING_MONGODB_PASSWORD=${MONGO_DB_PASSWORD}
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8090/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -65,3 +109,4 @@ networks:
 
 volumes:
   postgres:
+  mongo:
